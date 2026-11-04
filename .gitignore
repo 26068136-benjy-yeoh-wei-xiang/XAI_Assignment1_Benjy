@@ -1,0 +1,19 @@
+# Local environment and Python caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+~$*
+
+# Downloaded data and generated results
+/data/*.csv
+/output/
+*.joblib
+*.npz
