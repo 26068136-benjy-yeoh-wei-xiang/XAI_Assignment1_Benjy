@@ -17,3 +17,6 @@ Thumbs.db
 /output/
 *.joblib
 *.npz
+
+# Required saved Random Forest comparison for Task 6
+!/reference/task2_shap.npz

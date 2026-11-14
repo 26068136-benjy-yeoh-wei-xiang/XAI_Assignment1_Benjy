@@ -1,10 +1,11 @@
 # XAI Assignment 1 — Benjy
 
-Code for exploratory data analysis (Task 1), Random Forest classification with SHAP explanations (Task 2), a local SHAP force plot (Task 3), and global SHAP summary plots (Task 4).
+Code for exploratory data analysis (Task 1), Random Forest classification with SHAP explanations (Task 2), a local SHAP force plot (Task 3), global SHAP summary plots (Task 4), and an SVM comparison with Kernel SHAP (Task 6).
 
 ## Files
 
 - `Task2_Task3_Task4.ipynb`: complete notebook for Tasks 2–4, with all Task 4 code embedded and execution outputs. Includes model training, evaluation, local explanations and global analysis. Task 4 exports top-ten and all-21-feature beeswarm plots, an importance bar chart, the full ranking, feature-value direction checks, local/global comparison and verification metadata under `output/task4/`.
+- `Task6_SVM_KernelSHAP.ipynb`: executed SVM evaluation and local/global Kernel SHAP explanations. Uses the shared DataLoader and the saved Random Forest evidence in `reference/`.
 - `Task1_EDA.ipynb`: dataset exploration, missing values, class balance, outcome comparisons and correlations. Saves tables and figures under `output/task1/` when run.
 - `00_data_exploration.py`: supplied EDA script, retained unchanged from the working project.
 - `utils.py`: adapted supplied `DataLoader`. Tasks 2–4 use its split, training-fitted preprocessing and seeded oversampling methods. The original zero-filled `preprocess_data()` is retained for the Task 1 demonstration.
@@ -44,7 +45,7 @@ The classification target records stroke status. These experiments do not establ
 
 The working source was copied from the local `xai-series-master` folder. Its original GitHub URL, download method and upstream commit were not recorded; the folder name alone does not verify them. Add the original repository URL and applicable licence information when available. No new licence is asserted for the supplied code.
 
-For this submission, notebook dataset paths were adapted to this folder, machine-specific instructions were replaced, saved notebook outputs were cleared and setup documentation was added. The modelling and analysis calculations were retained. Reports, raw data, generated outputs and model binaries are excluded.
+For this submission, notebook dataset paths were adapted to this folder, machine-specific instructions were replaced, saved notebook outputs were cleared and setup documentation was added. The modelling and analysis calculations were retained. Reports, raw data, generated outputs and model binaries are excluded. The small saved comparison files in `reference/` are included because Task 6 needs them.
 
 A commit in this repository identifies this submitted code; it does not identify the original upstream revision. After committing, record its hash with:
 
@@ -78,3 +79,15 @@ To reproduce Tasks 2–4, execute `Task2_Task3_Task4.ipynb` from top to bottom. 
 On 9 November 2026, Task 2 was refactored to call the supplied helper structure: `DataLoader.load_dataset()`, `get_data_split(stratify=True, random_state=2021)`, `preprocess_split()` and `oversample(random_state=2021)`. The adapted helper preserves the original Task 1 `preprocess_data()` output.
 
 The complete Tasks 2–4 notebook was rerun. All 17 code cells passed. Training/test frames, labels, encoded order, oversampled rows and sample indices exactly matched the earlier inline code. Maximum differences in the saved model probabilities and SHAP values were both zero. The confusion matrix remains `[[960, 12], [47, 3]]`; all report metrics, the selected case and the local/global explanation values are unchanged. Restart the notebook kernel after changing the helper.
+
+### Task 6 completion
+
+`Task6_SVM_KernelSHAP.ipynb` uses the shared DataLoader with the same seed-2021 stratified split, training-median BMI, encoded columns and training-only oversampling as Task 2. StandardScaler precedes an RBF SVC with C=1.0, gamma="scale", probability=True and random_state=2021. There is no hyperparameter search or separate calibration wrapper. Reported labels use P(stroke = 1) > 0.5, with ties assigned to class 0; 34 native SVC labels differ from that probability rule.
+
+All eight code cells were executed on 9 November 2026 in the existing Python 3.9.6 environment. The SVM confusion matrix was `[[774, 198], [22, 28]]`, versus `[[960, 12], [47, 3]]` for the forest. Stroke recall increased from 6% to 56%, while false positives increased from 12 to 198. SVM ROC AUC was 0.792510 and average precision 0.163409. These scores describe recorded stroke classification, not validated future risk.
+
+Kernel SHAP explains stroke-class probability with an identity link, 50 sampled oversampled-training background records, 512 coalition samples and l1_reg=0. Global explanations cover a fixed stratified sample of 100 test records, including five stroke cases; all 1,022 test records are evaluated. Dataset row 173 is explained locally using the same coalition budget. The forest comparison uses saved Task 2 predictions and SHAP arrays on the identical test sample.
+
+The required files `reference/task2_predictions.csv` and `reference/task2_shap.npz` are included in Git. Their provenance is recorded in `reference/README.md`. Run the notebook from this folder; it exports plots, contribution tables, backgrounds, sampled indices, predictions, SHAP arrays, comparison metrics and `summary.json` under `output/task6/`.
+
+The maximum global Kernel SHAP reconstruction residual was 1.67e-16. Numerical matrix-multiplication warnings occurred, but saved arrays were finite and reconstruction checks passed. A finite residual does not establish attribution stability. A fresh installation on another platform has not been tested.
