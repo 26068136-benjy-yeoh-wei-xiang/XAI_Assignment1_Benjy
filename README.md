@@ -7,7 +7,7 @@ Code for exploratory data analysis (Task 1), Random Forest classification with S
 - `Task2_Task3_Task4.ipynb`: complete notebook for Tasks 2–4, with all Task 4 code embedded and execution outputs. Includes model training, evaluation, local explanations and global analysis. Task 4 exports top-ten and all-21-feature beeswarm plots, an importance bar chart, the full ranking, feature-value direction checks, local/global comparison and verification metadata under `output/task4/`.
 - `Task1_EDA.ipynb`: dataset exploration, missing values, class balance, outcome comparisons and correlations. Saves tables and figures under `output/task1/` when run.
 - `00_data_exploration.py`: supplied EDA script, retained unchanged from the working project.
-- `utils.py`: supplied data-loading and preprocessing helper, retained unchanged from the working project.
+- `utils.py`: adapted supplied `DataLoader`. Tasks 2–4 use its split, training-fitted preprocessing and seeded oversampling methods. The original zero-filled `preprocess_data()` is retained for the Task 1 demonstration.
 - `requirements.txt`: package versions from the existing Python 3.9.6 XAI environment, including notebook kernel support.
 - `data/README.md`: dataset source, expected filename and checksum.
 
@@ -34,7 +34,7 @@ No arguments are required. The script displays histograms and prints dataset inf
 
 ## Interpretation and reproducibility
 
-The supplied `utils.py` replaces missing BMI values with zero. Task 1 retains this behaviour when demonstrating the supplied script. Task 2 uses a BMI median learned from the training set instead. These are distinct preprocessing paths.
+The supplied EDA path `DataLoader.preprocess_data()` replaces missing BMI values with zero. Task 1 retains this behaviour. For Task 2, the adapted loader splits first, fits the BMI median and encoded columns with `preprocess_split()`, then oversamples training records with a fixed seed. These are distinct preprocessing paths.
 
 Task 2 uses random seed 2021 and keeps oversampling within the training set. It reports accuracy, macro F1, per-class precision/recall/F1 and the confusion matrix, and verifies that stroke-class SHAP contributions reconstruct predicted stroke probabilities. The notebook does not currently calculate ROC-AUC; avoid claiming that it does in the report.
 
@@ -72,3 +72,9 @@ The combined notebook was executed from top to bottom on 9 November 2026 in the 
 Task 4 retains all test records and the fitted forest's implicit tree-path background. It explains class `1` probabilities and retains separate indicator columns. The main beeswarm displays ten features; an additional plot displays all 21. CSV exports retain every feature. Narrative interpretation and the comparison with dataset row 173 are included in the notebook. The dot-layout seed is 2021; this does not sample the test set.
 
 To reproduce Tasks 2–4, execute `Task2_Task3_Task4.ipynb` from top to bottom. All Task 4 functions are defined inside the notebook, and no separate Task 4 Python file or parent evidence folder is required.
+
+### Task 2 DataLoader revision
+
+On 9 November 2026, Task 2 was refactored to call the supplied helper structure: `DataLoader.load_dataset()`, `get_data_split(stratify=True, random_state=2021)`, `preprocess_split()` and `oversample(random_state=2021)`. The adapted helper preserves the original Task 1 `preprocess_data()` output.
+
+The complete Tasks 2–4 notebook was rerun. All 17 code cells passed. Training/test frames, labels, encoded order, oversampled rows and sample indices exactly matched the earlier inline code. Maximum differences in the saved model probabilities and SHAP values were both zero. The confusion matrix remains `[[960, 12], [47, 3]]`; all report metrics, the selected case and the local/global explanation values are unchanged. Restart the notebook kernel after changing the helper.
